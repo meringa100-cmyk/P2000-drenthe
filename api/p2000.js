@@ -52,11 +52,15 @@ export default async function handler(req, res) {
       const text = title + ' ' + description;
       const placeMatch = text.match(/Emmen|Klazienaveen|Nieuw-Dordrecht|Emmer-Compascuum|Schoonebeek|Zwartemeer|Erica|Nieuw-Amsterdam|Weiteveen|Odoorn|Borger|Coevorden|Assen|Hoogeveen|Sleen/i);
       let time = '';
+      let date = '';
       if (rawDate) {
         const parsed = new Date(rawDate);
-        if (!Number.isNaN(parsed.getTime())) time = parsed.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Amsterdam' });
+        if (!Number.isNaN(parsed.getTime())) {
+          time = parsed.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Amsterdam' });
+          date = parsed.toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Europe/Amsterdam' });
+        }
       }
-      return { title: title || 'P2000-melding', description: description.slice(0, 500), time, place: placeMatch ? placeMatch[0] : (area === 'emmen' ? 'Emmen-regio' : 'Drenthe'), service: classify(text), priority: priority(text) };
+      return { title: title || 'P2000-melding', description: description.slice(0, 500), date, time, place: placeMatch ? placeMatch[0] : (area === 'emmen' ? 'Emmen-regio' : 'Drenthe'), service: classify(text), priority: priority(text) };
     }).filter(item => item.title || item.description);
     return res.status(200).json({ area, updatedAt: new Date().toISOString(), items });
   } catch (error) {
